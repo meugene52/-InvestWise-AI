@@ -1,0 +1,25 @@
+# Python temporary files
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+
+# Project backups
+Backup/
+bkup1/
+
+# Older project packages
+investwise-full/
+investwise-full.zip
+
+# Older HTML versions
+investwise.html
+investwise_nifty50_financial_literacy.html
+investwise_nifty50_roshni_chat.html
+investwise_nifty50_with_chatbot.html
+
+# Reference documents
+*.docx
+Website Development Guidance.html
+Website Development Guidance_files/

@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>InvestWise AI – Company Analysis</title>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:wght@500;700&family=Public+Sans:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f2f5f7;--card:#fff;--ink:#16283b;--mute:#5b6b7a;--line:#d6dee5;--teal:#0f7b6c;--amber:#b87a0b;--red:#b3382c;--tint:#e6f2ef;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#101a24;--card:#17232f;--ink:#e6edf3;--mute:#9aabb9;--line:#2b3b4a;--teal:#3cc0a9;--amber:#e0a93b;--red:#ef7b6e;--tint:#1b3a38}}
+:root[data-theme="dark"]{--bg:#101a24;--card:#17232f;--ink:#e6edf3;--mute:#9aabb9;--line:#2b3b4a;--teal:#3cc0a9;--amber:#e0a93b;--red:#ef7b6e;--tint:#1b3a38}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "Public Sans",system-ui,sans-serif}
+h1,h2,h3{font-family:Newsreader,Georgia,serif;margin:0}
+.wrap{max-width:980px;margin:0 auto;padding:20px 16px 48px}
+header{display:flex;flex-wrap:wrap;gap:12px;align-items:end;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:14px}
+header h1{font-size:30px}
+.sub{color:var(--mute);font-size:14px}
+select{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--ink)}
+.price{display:flex;gap:18px;align-items:baseline;margin:18px 0 6px;flex-wrap:wrap}
+.price b{font:700 34px Newsreader,Georgia,serif}
+.chg.up{color:var(--teal)}.chg.dn{color:var(--red)}
+.tabs{display:flex;gap:4px;margin:18px 0 0;border-bottom:1px solid var(--line);overflow-x:auto}
+.tabs button{font:600 15px "Public Sans",sans-serif;padding:10px 16px;border:0;background:none;color:var(--mute);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap}
+.tabs button[aria-selected=true]{color:var(--ink);border-color:var(--teal)}
+button:focus-visible,select:focus-visible,a:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+.panel{display:none;padding-top:18px}.panel.on{display:block}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.m{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+.m span{display:block;color:var(--mute);font-size:13px}
+.m b{font-size:22px;font-family:Newsreader,Georgia,serif}
+.m small{display:block;color:var(--mute);margin-top:2px}
+.box{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:14px;margin-top:14px}
+.box h3{font-size:19px;margin-bottom:6px}
+.note{background:var(--tint);border-left:4px solid var(--teal);padding:10px 14px;margin-top:14px;font-size:15px}
+svg{width:100%;height:auto;display:block}
+.vids{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.vids a{display:block;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);text-decoration:none}
+.vids a:hover{border-color:var(--teal)}
+.vids em{display:block;font-style:normal;color:var(--mute);font-size:13px}
+footer{margin-top:28px;color:var(--mute);font-size:13px;border-top:1px solid var(--line);padding-top:12px}
+.lvl{display:inline-block;padding:2px 10px;border-radius:99px;font-weight:600;font-size:14px;color:#fff}
+@media (max-width:520px){header h1{font-size:25px}.price b{font-size:28px}}
+.chatlog{height:330px;overflow-y:auto;background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:12px;display:flex;flex-direction:column;gap:12px}.bubble{padding:11px 13px;border-radius:10px;max-width:92%;white-space:pre-wrap;overflow-wrap:anywhere}.bubble.user{align-self:flex-end;background:var(--tint);border:1px solid var(--teal)}.bubble.bot{align-self:flex-start;background:var(--card);border:1px solid var(--line)}.chatrow{display:flex;gap:8px;margin-top:12px}.chatrow input{flex:1;min-width:0;border:1px solid var(--line);border-radius:8px;padding:12px;background:var(--card);color:var(--ink);font:inherit}.chatrow button,.suggest button{background:var(--teal);color:white;border:0;border-radius:8px;padding:10px 14px;cursor:pointer}.suggest{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}.suggest button{background:var(--card);color:var(--ink);border:1px solid var(--line)}.chatlink{margin-top:8px;display:block;color:var(--teal)}
+
+/* Bottom-right trial chat: offline, no API */
+.float-chat-btn{width:auto!important;min-width:220px;height:auto!important;min-height:66px;padding:9px 15px;display:flex;align-items:center;gap:10px;text-align:left;border-radius:36px!important;font-size:16px!important}
+.roshni-icon{font-size:27px;line-height:1}
+.roshni-greeting{font-size:15px;font-weight:700;line-height:1.3}
+.roshni-greeting small{display:block;font-size:12px;font-weight:400;margin-top:2px}
+@media(max-width:420px){.float-chat-btn{right:10px;bottom:10px;min-width:195px;padding:8px 11px}.roshni-greeting{font-size:13px}}
+
+.float-chat-btn{position:fixed;right:22px;bottom:22px;z-index:1001;width:64px;height:64px;border-radius:50%;background:var(--teal);color:#fff;border:2px solid white;box-shadow:0 6px 22px #0004;font-size:28px;cursor:pointer}
+.float-chat{position:fixed;right:20px;bottom:96px;z-index:1000;width:min(390px,calc(100vw - 32px));height:min(540px,calc(100vh - 130px));background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:0 10px 35px #0004;display:none;flex-direction:column;overflow:hidden}
+.float-chat.open{display:flex}.float-head{padding:14px;background:var(--teal);color:white;display:flex;align-items:center;justify-content:space-between;gap:8px}.float-head button{background:transparent;color:white;border:0;font-size:26px;cursor:pointer}.float-body{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px}.float-help{font-size:12px;color:var(--mute);padding:8px 12px;border-top:1px solid var(--line)}.float-form{display:flex;gap:7px;padding:10px}.float-form input{flex:1;min-width:0;border:1px solid var(--line);border-radius:8px;padding:10px;background:var(--bg);color:var(--ink)}.float-form button{background:var(--teal);color:white;border:0;border-radius:8px;padding:10px;cursor:pointer}.float-suggest{padding:8px 10px;display:flex;gap:5px;flex-wrap:wrap}.float-suggest button{border:1px solid var(--line);background:var(--bg);color:var(--ink);padding:6px;border-radius:12px;cursor:pointer;font-size:12px}
+.roshni-suggestions button{font:inherit;font-size:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:20px;padding:5px 9px;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div><h1>InvestWise AI</h1><div class="sub">NIFTY 50 · Company analysis (sample data)</div></div>
+  <label class="sub">Company <select id="co" aria-label="Choose company"></select></label>
+</header>
+
+<div class="price"><b id="px"></b><span id="chg" class="chg"></span><span class="sub" id="meta"></span></div>
+
+<div class="tabs" role="tablist" id="tabs">
+  <button role="tab" aria-selected="true" data-p="fa">Fundamental</button>
+  <button role="tab" aria-selected="false" data-p="ta">Technical</button>
+  <button role="tab" aria-selected="false" data-p="rr">Risk &amp; return</button>
+  <button role="tab" aria-selected="false" data-p="literacy">Financial Literacy</button>
+  <button role="tab" aria-selected="false" data-p="assistant">Financial Chatbot</button>
+</div>
+
+<section class="panel on" id="fa">
+  <div class="grid" id="faGrid"></div>
+  <div class="note" id="faNote"></div>
+  <div class="box"><h3>Learn this topic</h3><ul class="vids">
+    <li><a href="https://www.youtube.com/watch?v=RpAenFUtGss" target="_blank" rel="noopener">Top 3 parameters for company analysis<em>CA Rachana Ranade</em></a></li>
+    <li><a href="https://www.youtube.com/watch?v=POfmy7ZQAb4" target="_blank" rel="noopener">How do I analyse stocks?<em>CA Rachana Ranade</em></a></li>
+    <li><a href="https://www.youtube.com/watch?v=8CcLLqO_IH0" target="_blank" rel="noopener">Company walkthrough: business model and financials<em>CA Rachana Ranade</em></a></li>
+  </ul></div>
+</section>
+
+<section class="panel" id="ta">
+  <div class="box"><h3>Price with 20- and 50-day averages</h3><div id="chart"></div>
+    <div class="sub">Teal: 20-day average · Amber: 50-day average</div></div>
+  <div class="grid" id="taGrid" style="margin-top:14px"></div>
+  <div class="note" id="taNote"></div>
+  <div class="box"><h3>Learn this topic</h3><ul class="vids">
+    <li><a href="https://www.youtube.com/watch?v=si88pFi6EmI" target="_blank" rel="noopener">Technical analysis course outline<em>CA Rachana Ranade</em></a></li>
+    <li><a href="https://www.youtube.com/watch?v=DU9pXOLFxK8" target="_blank" rel="noopener">Top 5 things to check before buying a stock<em>CA Rachana Ranade</em></a></li>
+    <li><a href="https://www.youtube.com/watch?v=rUBsYP1Rrdc" target="_blank" rel="noopener">Basics of technical analysis (guest session)<em>Yagnesh Patel with CA Rachana Ranade</em></a></li>
+  </ul></div>
+</section>
+
+<section class="panel" id="rr">
+  <div class="grid" id="rrGrid"></div>
+  <div class="note" id="rrNote"></div>
+  <div class="box"><h3>Learn this topic</h3><ul class="vids">
+    <li><a href="https://www.youtube.com/results?search_query=CA+Rachana+Ranade+risk+and+return" target="_blank" rel="noopener">Search: risk and return on the channel<em>Direct video link to be added after you confirm one</em></a></li>
+  </ul></div>
+</section>
+
+<section class="panel" id="literacy">
+<div class="box"><h2>Financial Literacy Academy</h2><p class="sub">Choose a topic to learn through CA Rachana Ranade’s YouTube channel. Links open YouTube searches within the channel; video availability and relevance should be reviewed before presenting.</p><p><a href="https://www.youtube.com/@carachanaranade" target="_blank" rel="noopener">Visit CA Rachana Ranade’s channel ↗</a></p></div>
+<div class="grid" style="margin-top:14px">
+<div class="m"><span>Lesson 01</span><h3 style="margin:6px 0">Stock Market Basics</h3><p class="sub">Shares, NSE and BSE, investing versus trading</p><a href="https://www.youtube.com/@carachanaranade/search?query=stock%20market%20basics" target="_blank" rel="noopener">Find related videos on channel ↗</a></div>
+<div class="m"><span>Lesson 02</span><h3 style="margin:6px 0">Demat & Trading Accounts</h3><p class="sub">Demat accounts, brokers and how orders work</p><a href="https://www.youtube.com/@carachanaranade/search?query=demat%20account%20trading%20basics" target="_blank" rel="noopener">Find related videos on channel ↗</a></div>
+<div class="m"><span>Lesson 03</span><h3 style="margin:6px 0">Fundamental Analysis</h3><p class="sub">Business models, earnings, and company valuation</p><a href="https://www.youtube.com/@carachanaranade/search?query=fundamental%20analysis" target="_blank" rel="noopener">Find related videos on channel ↗</a></div>
+<div class="m"><span>Lesson 04</span><h3 style="margin:6px 0">Financial Ratios</h3><p class="sub">P/E, P/B, EPS, ROE and ROCE explained</p><a href="https://www.youtube.com/@carachanaranade/search?query=PE%20ratio%20ROE%20ROCE%20EPS" target="_blank" rel="noopener">Find related videos on channel ↗</a></div>
+<div class="m"><span>Lesson 05</span><h3 style="margin:6px 0">Technical Analysis</h3><p class="sub">Charts, trends, moving averages and RSI</p><a href="https://www.youtube.com/@carachanaranade/search?query=technical%20analysis" target="_blank" rel="noopener">Find related videos on channel ↗</a></div>
+<div class="m"><span>Lesson 06</span><h3 style="margin:6px 0">Risk Management</h3><p class="sub">Volatility, diversification and risk versus return</p><a href="https://www.youtube.com/@carachanaranade/search?query=risk%20management%20diversification" target="_blank" rel="noopener">Find related videos on channel ↗</a></div>
+<div class="m"><span>Lesson 07</span><h3 style="margin:6px 0">Investment Decisions</h3><p class="sub">Research checklists and avoiding common mistakes</p><a href="https://www.youtube.com/@carachanaranade/search?query=stock%20selection%20investing%20mistakes" target="_blank" rel="noopener">Find related videos on channel ↗</a></div>
+<div class="m"><span>Lesson 08</span><h3 style="margin:6px 0">Financial Statements</h3><p class="sub">Balance sheet, profit and loss, cash flow</p><a href="https://www.youtube.com/@carachanaranade/search?query=balance%20sheet%20profit%20loss%20cash%20flow" target="_blank" rel="noopener">Find related videos on channel ↗</a></div>
+<div class="m"><span>Lesson 09</span><h3 style="margin:6px 0">Social Media & Investing</h3><p class="sub">Check claims and distinguish education from recommendations</p><a href="https://www.youtube.com/@carachanaranade/search?query=stock%20market%20social%20media%20tips" target="_blank" rel="noopener">Find related videos on channel ↗</a></div>
+</div>
+<div class="note">Educational videos are hosted by their original creator on YouTube. This page does not automatically import or verify every video from the channel.</div>
+</section>
+
+<section class="panel" id="assistant">
+  <div class="box"><h2>InvestWise Financial Chatbot</h2><p class="sub">Offline educational demonstration assistant. Answers use financial definitions and clearly labelled simulated company values. This is not a generative AI model or a live Screener.in integration.</p>
+    <div class="suggest"><button type="button" data-question="Explain ROE">Explain ROE</button><button type="button" data-question="Show company financial ratios">Company ratios</button><button type="button" data-question="What are the risks?">Risk analysis</button><button type="button" data-question="Show Screener.in data">Screener.in information</button><button type="button" data-question="How to verify social media stock tips?">Social media tips</button></div>
+    <div class="chatlog" id="chatlog" role="log" aria-live="polite"></div>
+    <form class="chatrow" id="chatform"><input id="chatinput" maxlength="350" aria-label="Ask a financial question" placeholder="Ask about ROE, debt, ratios, Screener.in..." required><button type="submit">Send</button></form>
+    <p class="sub">For verified company figures, open the official source and check its reporting date. Do not use simulated figures to make investment decisions.</p>
+  </div>
+</section>
+
+<footer>Educational demo. Prices and ratios on this page are sample data generated for the project, not live market data. Nothing here is investment advice.</footer>
+</div>
+
+
+<button class="float-chat-btn" id="floatChatBtn" type="button" aria-label="Open Roshni chat" aria-expanded="false" aria-controls="floatChat"><span class="roshni-icon">💬</span><span class="roshni-greeting">Hi, I am Roshni!<small>How can I help you?</small></span></button>
+<aside class="float-chat" id="floatChat" aria-label="Ask InvestWise trial chat">
+  <div class="float-head"><div><strong>Hi, I am Roshni! 💬</strong><div style="font-size:12px">Try financial questions • Demo mode</div></div><button type="button" id="floatClose" aria-label="Close chat">×</button></div>
+  <div class="float-suggest"><button type="button" data-float-question="Explain ROE">Explain ROE</button><button type="button" data-float-question="Show company financial ratios">Company ratios</button><button type="button" data-float-question="What are the risks?">Investment risks</button></div>
+  <div class="float-body" id="floatMessages" role="log" aria-live="polite"></div>
+  <div class="float-help">Trial chat uses preset educational answers, not live AI or live market data. Company figures are simulated.</div>
+  <div class="roshni-suggestions" style="padding:8px 12px;display:flex;gap:6px;flex-wrap:wrap"><button type="button" data-float-question="What is inflation?">Inflation</button><button type="button" data-float-question="What is repo rate?">Repo rate</button><button type="button" data-float-question="What is GDP?">GDP</button></div>
+  <form class="float-form" id="floatForm"><input id="floatInput" maxlength="350" placeholder="Ask a financial question..." aria-label="Financial question" required><button type="submit">Send</button></form>
+</aside>
+<script src="/education/investor_questions.js"></script>
+<script>
+// ---------- sample data (replace with your API response) ----------
+// NIFTY 50 constituent names and symbols from uploaded NSE CSV.
+// All prices and financial ratios below are ILLUSTRATIVE DEMO DATA, not live quotes.
+const COMPANY_NAMES = {
+  "ADANIENT": {
+    "name": "Adani Enterprises",
+    "sector": "Metals & Mining"
+  },
+  "ADANIPORTS": {
+    "name": "Adani Ports and Special Economic Zone",
+    "sector": "Services"
+  },
+  "APOLLOHOSP": {
+    "name": "Apollo Hospitals Enterprise",
+    "sector": "Healthcare"
+  },
+  "ASIANPAINT": {
+    "name": "Asian Paints",
+    "sector": "Consumer Durables"
+  },
+  "AXISBANK": {
+    "name": "Axis Bank",
+    "sector": "Financial Services"
+  },
+  "BSE": {
+    "name": "BSE",
+    "sector": "Financial Services"
+  },
+  "BAJAJ-AUTO": {
+    "name": "Bajaj Auto",
+    "sector": "Automobile and Auto Components"
+  },
+  "BAJFINANCE": {
+    "name": "Bajaj Finance",
+    "sector": "Financial Services"
+  },
+  "BAJAJFINSV": {
+    "name": "Bajaj Finserv",
+    "sector": "Financial Services"
+  },
+  "BEL": {
+    "name": "Bharat Electronics",
+    "sector": "Capital Goods"
+  },
+  "BHARTIARTL": {
+    "name": "Bharti Airtel",
+    "sector": "Telecommunication"
+  },
+  "CIPLA": {
+    "name": "Cipla",
+    "sector": "Healthcare"
+  },
+  "COALINDIA": {
+    "name": "Coal India",
+    "sector": "Oil Gas & Consumable Fuels"
+  },
+  "DRREDDY": {
+    "name": "Dr. Reddy's Laboratories",
+    "sector": "Healthcare"
+  },
+  "EICHERMOT": {
+    "name": "Eicher Motors",
+    "sector": "Automobile and Auto Components"
+  },
+  "ETERNAL": {
+    "name": "Eternal",
+    "sector": "Consumer Services"
+  },
+  "GRASIM": {
+    "name": "Grasim Industries",
+    "sector": "Construction Materials"
+  },
+  "HCLTECH": {
+    "name": "HCL Technologies",
+    "sector": "Information Technology"
+  },
+  "HDFCBANK": {
+    "name": "HDFC Bank",
+    "sector": "Financial Services"
+  },
+  "HDFCLIFE": {
+    "name": "HDFC Life Insurance Company",
+    "sector": "Financial Services"
+  },
+  "HINDALCO": {
+    "name": "Hindalco Industries",
+    "sector": "Metals & Mining"
+  },
+  "HINDUNILVR": {
+    "name": "Hindustan Unilever",
+    "sector": "Fast Moving Consumer Goods"
+  },
+  "ICICIBANK": {
+    "name": "ICICI Bank",
+    "sector": "Financial Services"
+  },
+  "ITC": {
+    "name": "ITC",
+    "sector": "Fast Moving Consumer Goods"
+  },
+  "INFY": {
+    "name": "Infosys",
+    "sector": "Information Technology"
+  },
+  "INDIGO": {
+    "name": "InterGlobe Aviation",
+    "sector": "Services"
+  },
+  "JSWSTEEL": {
+    "name": "JSW Steel",
+    "sector": "Metals & Mining"
+  },
+  "JIOFIN": {
+    "name": "Jio Financial Services",
+    "sector": "Financial Services"
+  },
+  "KOTAKBANK": {
+    "name": "Kotak Mahindra Bank",
+    "sector": "Financial Services"
+  },
+  "LT": {
+    "name": "Larsen & Toubro",
+    "sector": "Construction"
+  },
+  "M&M": {
+    "name": "Mahindra & Mahindra",
+    "sector": "Automobile and Auto Components"
+  },
+  "MARUTI": {
+    "name": "Maruti Suzuki India",
+    "sector": "Automobile and Auto Components"
+  },
+  "MAXHEALTH": {
+    "name": "Max Healthcare Institute",
+    "sector": "Healthcare"
+  },
+  "NTPC": {
+    "name": "NTPC",
+    "sector": "Power"
+  },
+  "NESTLEIND": {
+    "name": "Nestle India",
+    "sector": "Fast Moving Consumer Goods"
+  },
+  "ONGC": {
+    "name": "Oil & Natural Gas Corporation",
+    "sector": "Oil Gas & Consumable Fuels"
+  },
+  "POWERGRID": {
+    "name": "Power Grid Corporation of India",
+    "sector": "Power"
+  },
+  "RELIANCE": {
+    "name": "Reliance Industries",
+    "sector": "Oil Gas & Consumable Fuels"
+  },
+  "SBILIFE": {
+    "name": "SBI Life Insurance Company",
+    "sector": "Financial Services"
+  },
+  "SHRIRAMFIN": {
+    "name": "Shriram Finance",
+    "sector": "Financial Services"
+  },
+  "SBIN": {
+    "name": "State Bank of India",
+    "sector": "Financial Services"
+  },
+  "SUNPHARMA": {
+    "name": "Sun Pharmaceutical Industries",
+    "sector": "Healthcare"
+  },
+  "TCS": {
+    "name": "Tata Consultancy Services",
+    "sector": "Information Technology"
+  },
+  "TATACONSUM": {
+    "name": "Tata Consumer Products",
+    "sector": "Fast Moving Consumer Goods"
+  },
+  "TMPV": {
+    "name": "Tata Motors Passenger Vehicles",
+    "sector": "Automobile and Auto Components"
+  },
+  "TATASTEEL": {
+    "name": "Tata Steel",
+    "sector": "Metals & Mining"
+  },
+  "TECHM": {
+    "name": "Tech Mahindra",
+    "sector": "Information Technology"
+  },
+  "TITAN": {
+    "name": "Titan Company",
+    "sector": "Consumer Durables"
+  },
+  "TRENT": {
+    "name": "Trent",
+    "sector": "Consumer Services"
+  },
+  "ULTRACEMCO": {
+    "name": "UltraTech Cement",
+    "sector": "Construction Materials"
+  }
+};
+const COMPANIES = {};
+Object.entries(COMPANY_NAMES).forEach(([symbol, info], index) => {
+  COMPANIES[symbol] = {
+    name: info.name, sector: info.sector,
+    seed: index + 11, start: 500 + index * 75,
+    drift: 0.0003, vol: 0.012,
+    f: { pe: 20 + index % 15, pb: 2 + index % 5,
+      roe: 10 + index % 15, roce: 12 + index % 18,
+      debt: 0.1 + (index % 6) * 0.1, eps: 20 + index,
+      rev: 5 + index % 12, profit: 4 + index % 14,
+      margin: 10 + index % 12 }
+  };
+});
+
+const RF = 0.065, DAYS = 250;
+
+// ---------- helpers ----------
+function rng(seed){return function(){seed=(seed*1664525+1013904223)%4294967296;return seed/4294967296}}
+function gauss(r){let u=0,v=0;while(!u)u=r();while(!v)v=r();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)}
+function series(seed,start,drift,vol){const r=rng(seed),a=[start];for(let i=1;i<DAYS;i++)a.push(a[i-1]*(1+drift+vol*gauss(r)));return a}
+const sma=(a,n)=>a.map((_,i)=>i<n-1?null:a.slice(i-n+1,i+1).reduce((s,x)=>s+x,0)/n);
+const rets=a=>a.slice(1).map((x,i)=>x/a[i]-1);
+const mean=a=>a.reduce((s,x)=>s+x,0)/a.length;
+const sd=a=>{const m=mean(a);return Math.sqrt(a.reduce((s,x)=>s+(x-m)**2,0)/(a.length-1))};
+function rsi(a,n=14){const r=rets(a).slice(-n);let g=0,l=0;r.forEach(x=>x>0?g+=x:l-=x);return l===0?100:100-100/(1+g/l)}
+function maxDD(a){let p=a[0],d=0;a.forEach(x=>{p=Math.max(p,x);d=Math.min(d,x/p-1)});return d}
+function beta(a,b){const x=rets(a),y=rets(b),mx=mean(x),my=mean(y);let c=0,v=0;x.forEach((_,i)=>{c+=(x[i]-mx)*(y[i]-my);v+=(y[i]-my)**2});return c/v}
+const f1=(x,d=1)=>x.toFixed(d), pct=x=>(x*100).toFixed(1)+"%";
+const card=(l,v,s)=>`<div class="m"><span>${l}</span><b>${v}</b>${s?`<small>${s}</small>`:""}</div>`;
+
+// ---------- fundamental ----------
+function fundamental(c){
+  const f=c.f;
+  document.getElementById("faGrid").innerHTML=
+    card("P/E ratio",f1(f.pe),"Price per ₹1 of yearly profit")+
+    card("P/B ratio",f1(f.pb),"Price compared with book value")+
+    card("ROE",f.roe+"%","Return on shareholders’ equity")+
+    card("ROCE",f.roce+"%","Return on capital employed")+
+    card("Debt to equity",f1(f.debt,2),f.debt<0.5?"Low borrowing":f.debt<1?"Moderate borrowing":"High borrowing")+
+    card("EPS",`₹${f.eps}`,"Earnings per share")+
+    card("Revenue growth",f.rev+"%","Year on year")+
+    card("Profit growth",f.profit+"%","Year on year")+
+    card("Net margin",f.margin+"%","Profit from each ₹100 of sales");
+  let pts=0,why=[];
+  if(f.roe>=15){pts++;why.push("strong ROE")} else why.push("modest ROE");
+  if(f.debt<=0.5){pts++;why.push("low debt")} else why.push("noticeable debt");
+  if(f.profit>0){pts++;why.push("growing profit")} else why.push("falling profit");
+  const tone=["weak","mixed","fair","strong"][pts];
+  document.getElementById("faNote").textContent=
+    `Business health looks ${tone}: ${why.join(", ")}. A high P/E means investors already expect growth, so check whether the price is justified.`;
+}
+
+// ---------- technical ----------
+
+
+function chart(p,s20,s50){
+  const W=760,H=260,P=28;
+  const mx=Math.max(...p),mn=Math.min(...p);
+  const X=i=>P+i*(W-2*P)/(p.length-1);
+  const Y=v=>H-P-(v-mn)*(H-2*P)/(mx-mn);
+
+  const line=(a,col,w)=>{
+    let d="",on=false;
+    a.forEach((v,i)=>{
+      if(v==null)return;
+      d+=(on?"L":"M")+X(i).toFixed(1)+" "+Y(v).toFixed(1);
+      on=true;
+    });
+    return `<path d="${d}" fill="none"
+      stroke="${col}" stroke-width="${w}"/>`;
+  };
+
+  const container=document.getElementById("chart");
+
+  container.style.position="relative";
+  container.style.width="100%";
+
+  container.innerHTML=`
+    <svg viewBox="0 0 ${W} ${H}"
+         style="width:100%;height:auto;display:block;touch-action:pan-y"
+         role="img"
+         aria-label="Interactive simulated price chart with moving averages">
+
+      <line x1="${P}" y1="${H-P}"
+            x2="${W-P}" y2="${H-P}"
+            stroke="var(--line)"/>
+
+      <text x="${P}" y="14"
+            fill="var(--mute)" font-size="12">
+        ₹${f1(mx,0)}
+      </text>
+
+      <text x="${P}" y="${H-8}"
+            fill="var(--mute)" font-size="12">
+        ₹${f1(mn,0)}
+      </text>
+
+      ${line(p,"var(--ink)",1.6)}
+      ${line(s20,"var(--teal)",1.4)}
+      ${line(s50,"var(--amber)",1.4)}
+
+      <line id="chartGuide"
+            y1="${P}" y2="${H-P}"
+            stroke="var(--mute)"
+            stroke-dasharray="4 4"
+            visibility="hidden"/>
+
+      <circle id="chartDot" r="4"
+              fill="var(--ink)"
+              stroke="white" stroke-width="2"
+              visibility="hidden"/>
+
+      <rect x="${P}" y="${P}"
+            width="${W-2*P}" height="${H-2*P}"
+            fill="transparent"
+            id="chartHoverArea"/>
+    </svg>
+
+    <div id="chartTooltip"
+         style="display:none;position:absolute;
+         z-index:10;pointer-events:none;
+         background:#243447;color:white;
+         padding:10px 12px;border-radius:8px;
+         font-size:12px;line-height:1.7;
+         box-shadow:0 4px 14px rgba(0,0,0,.18);
+         white-space:nowrap;">
+    </div>
+  `;
+
+  const svg=container.querySelector("svg");
+  const area=container.querySelector("#chartHoverArea");
+  const guide=container.querySelector("#chartGuide");
+  const dot=container.querySelector("#chartDot");
+  const tooltip=container.querySelector("#chartTooltip");
+
+  function showTooltip(e){
+    const pt=svg.createSVGPoint();
+    pt.x=e.clientX;
+    pt.y=e.clientY;
+
+    const matrix=svg.getScreenCTM();
+    if(!matrix)return;
+
+    const pos=pt.matrixTransform(matrix.inverse());
+
+    const i=Math.max(0,Math.min(
+      p.length-1,
+      Math.round((pos.x-P)*(p.length-1)/(W-2*P))
+    ));
+
+    guide.setAttribute("x1",X(i));
+    guide.setAttribute("x2",X(i));
+    guide.setAttribute("visibility","visible");
+
+    dot.setAttribute("cx",X(i));
+    dot.setAttribute("cy",Y(p[i]));
+    dot.setAttribute("visibility","visible");
+
+    tooltip.innerHTML=`
+      <strong>Trading day ${i+1} (simulated)</strong><br>
+      Price: ₹${f1(p[i],2)}<br>
+      20-day MA: ${s20[i]==null?"N/A":"₹"+f1(s20[i],2)}<br>
+      50-day MA: ${s50[i]==null?"N/A":"₹"+f1(s50[i],2)}
+    `;
+
+    tooltip.style.display="block";
+
+    const rect=container.getBoundingClientRect();
+    const localX=e.clientX-rect.left;
+    const localY=e.clientY-rect.top;
+
+    const maxLeft=Math.max(0,rect.width-tooltip.offsetWidth);
+    const left=Math.max(0,Math.min(
+      localX+12,maxLeft
+    ));
+
+    const top=Math.max(0,localY-tooltip.offsetHeight-12);
+
+    tooltip.style.left=left+"px";
+    tooltip.style.top=top+"px";
+  }
+
+  function hideTooltip(){
+    guide.setAttribute("visibility","hidden");
+    dot.setAttribute("visibility","hidden");
+    tooltip.style.display="none";
+  }
+
+  area.addEventListener("pointermove",showTooltip);
+  area.addEventListener("pointerleave",hideTooltip);
+  area.addEventListener("pointercancel",hideTooltip);
+}
+
+
+
+function technical(p){
+  const s20=sma(p,20),s50=sma(p,50),last=p.length-1,r=rsi(p);
+  chart(p,s20,s50);
+  const trend=s20[last]>s50[last]?"Uptrend":"Downtrend";
+  const rs=r>70?"Overbought":r<30?"Oversold":"Neutral";
+  document.getElementById("taGrid").innerHTML=
+    card("20-day average","₹"+f1(s20[last],0))+card("50-day average","₹"+f1(s50[last],0))+
+    card("Trend",trend,"20-day vs 50-day average")+card("RSI (14)",f1(r,0),rs);
+  document.getElementById("taNote").textContent=
+    `The 20-day average is ${trend==="Uptrend"?"above":"below"} the 50-day average, which points to an ${trend.toLowerCase()}. RSI is ${rs.toLowerCase()}. Use these signals to learn, not to time trades.`;
+}
+
+// ---------- risk and return ----------
+function risk(p,m){
+  const r=rets(p),ret=p[p.length-1]/p[0]-1,vol=sd(r)*Math.sqrt(252),
+        ann=Math.pow(1+ret,252/(p.length-1))-1,sharpe=(ann-RF)/vol,dd=maxDD(p),b=beta(p,m);
+  const lvl=vol<0.2?["Low","var(--teal)"]:vol<0.3?["Medium","var(--amber)"]:["High","var(--red)"];
+  document.getElementById("rrGrid").innerHTML=
+    card("1-year return",pct(ret),"Price change over the period")+
+    card("Volatility",pct(vol),"Yearly swing in returns")+
+    card("Max drawdown",pct(dd),"Biggest fall from a peak")+
+    card("Beta",f1(b,2),"Moves "+(b>1?"more":"less")+" than the market")+
+    card("Sharpe ratio",f1(sharpe,2),"Return per unit of risk")+
+    card("Risk level",`<span class="lvl" style="background:${lvl[1]}">${lvl[0]}</span>`,"Based on volatility");
+  document.getElementById("rrNote").textContent=
+    `A return of ${pct(ret)} came with a worst fall of ${pct(dd)}. Ask whether you could hold through a drop that size. Higher return usually means higher risk.`;
+}
+
+// ---------- page wiring ----------
+const sel=document.getElementById("co");
+Object.keys(COMPANIES).forEach(k=>sel.add(new Option(COMPANIES[k].name+" ("+k+")",k)));
+const market=series(5,20000,0.0003,0.008);
+function render(){
+  const k=sel.value,c=COMPANIES[k],p=series(c.seed,c.start,c.drift,c.vol),
+        d=p[p.length-1]/p[p.length-2]-1;
+  document.getElementById("px").textContent="₹"+p[p.length-1].toFixed(2);
+  const ch=document.getElementById("chg");ch.textContent=(d>=0?"▲ ":"▼ ")+pct(Math.abs(d));ch.className="chg "+(d>=0?"up":"dn");
+  document.getElementById("meta").textContent=c.sector+" · NSE: "+k;
+  fundamental(c);technical(p);risk(p,market);
+}
+sel.addEventListener("change",render);
+document.querySelectorAll("#tabs button").forEach(b=>b.addEventListener("click",()=>{
+  document.querySelectorAll("#tabs button").forEach(x=>x.setAttribute("aria-selected",x===b));
+  document.querySelectorAll(".panel").forEach(x=>x.classList.toggle("on",x.id===b.dataset.p));
+}));
+render();
+
+// Offline demo chatbot. No external API or credentials required.
+const chatlog = document.getElementById('chatlog');
+function chatMessage(message, who, link){
+  const bubble=document.createElement('div');bubble.className='bubble '+who;
+  bubble.textContent=message;
+  if(link){const a=document.createElement('a');a.className='chatlink';a.href=link;a.target='_blank';a.rel='noopener noreferrer';a.textContent='Open reference website ↗';bubble.appendChild(a);}
+  chatlog.appendChild(bubble);chatlog.scrollTop=chatlog.scrollHeight;
+}
+// Curated source guide. This offline demo does not fetch or verify website content.
+const ROSHNI_SOURCES={
+ sebi:'https://investor.sebi.gov.in/',
+ rbi:'https://www.rbi.org.in/',
+ mospi:'https://esankhyiki.mospi.gov.in/',
+ rbidata:'https://data.rbi.org.in/',
+ nse:'https://www.nseindia.com/',
+ bse:'https://www.bseindia.com/',
+ screener:'https://www.screener.in/'
+};
+function roshniSourceReply(question){
+ const q=question.toLowerCase().replace(/[^a-z0-9%/ .-]/g,' ');
+ const answer=(message,link)=>({message:message+'\n\nSource: Official/reference website linked below. This is a prepared educational explanation, not a live quotation or verified extraction from the site.',link});
+ if(/inflation|what is cpi|consumer price index|price rise|mehngai/.test(q))return answer('Inflation is a sustained increase in the general price level of goods and services over time. For example, if a basket of everyday items costs ₹1,000 and its price rises to ₹1,060 a year later, the basket has experienced 6% inflation. CPI (Consumer Price Index) is one common measure. For official Indian inflation and CPI statistics, consult MoSPI eSankhyiki.',ROSHNI_SOURCES.mospi);
+ if(/repo rate|reverse repo|monetary policy|rbi policy|interest rate|bank rate|central bank/.test(q))return answer('The repo rate is the rate at which the Reserve Bank of India lends short-term funds to eligible banks against securities. Monetary policy influences borrowing costs, inflation and economic activity. Check RBI announcements for the current policy rate; this offline chat cannot confirm today’s rate.',ROSHNI_SOURCES.rbi);
+ if(/historical|time series|past data|economic data|forex reserve|exchange rate history/.test(q))return answer('For historical Indian economic and financial time-series data, use the RBI Database on Indian Economy. Check the frequency, units, observation dates and revisions before interpreting figures.',ROSHNI_SOURCES.rbidata);
+ if(/gdp|gross domestic product|national income|unemployment|economic statistic|industrial production|iip/.test(q))return answer('GDP measures the value of final goods and services produced in an economy over a period. Nominal GDP uses current prices; real GDP adjusts for price changes. For India’s published economic statistics, consult MoSPI eSankhyiki and check the reference period.',ROSHNI_SOURCES.mospi);
+ if(/sebi|investor protection|mutual fund|fraud|scam|demat|financial literacy|financial concept|stock market basics/.test(q))return answer('SEBI’s investor education portal provides material on investor awareness, securities markets and investor protection. Verify intermediaries, understand risks and avoid promises of guaranteed returns.',ROSHNI_SOURCES.sebi);
+ if(/nse|national stock exchange|company filing|annual report|quarterly result|corporate announcement|financial statement/.test(q))return answer('To study a listed company, start with its exchange disclosures and financial statements. NSE publishes listed-company information and filings; BSE is another official exchange source. Verify the company, reporting period and whether figures are consolidated or standalone.',ROSHNI_SOURCES.nse);
+ if(/bse|bombay stock exchange/.test(q))return answer('BSE provides listed-company announcements, financial results and other market disclosures. Check the company and reporting period when reading financial statements.',ROSHNI_SOURCES.bse);
+ if(/screener|company ratio|ratio analysis|p\/e|pe ratio|roe|roce|debt.to.equity|valuation/.test(q)){
+  const symbol=sel.value;
+  return answer('For company ratio analysis, compare P/E, ROE, ROCE, debt-to-equity and profitability over several periods. Screener.in can help you review ratios and statements. The figures displayed elsewhere in this demo are simulated and must not be treated as current data. The link opens the currently selected company ('+symbol+'); verify the company identity.', 'https://www.screener.in/company/'+encodeURIComponent(symbol)+'/');
+ }
+ return null;
+}
+
+
+function investorQuestionReply(question) {
+    const q = question.toLowerCase()
+        .replace(/[?.!,]/g, "")
+        .replace(/\s+/g, " ")
+        .trim();
+
+    const answers = {
+        "what is the stock market":
+            "The stock market is a marketplace where investors buy and sell shares of publicly listed companies. In India, major exchanges include NSE and BSE.",
+
+        "what is a share":
+            "A share represents a small ownership interest in a company. Shareholders may benefit from price appreciation and dividends, but they can also lose money.",
+
+        "what is an ipo":
+            "IPO stands for Initial Public Offering. It is the process through which a company first offers its shares to the public.",
+
+        "what is the p/e ratio":
+            "P/E means Price-to-Earnings Ratio.\n\n" +
+            "Formula: Share Price / Earnings Per Share (EPS).\n\n" +
+            "Example: If the share price is ₹200 and EPS is ₹10, the P/E ratio is 20.\n\n" +
+            "Compare P/E ratios with companies in the same industry.",
+
+        "what is roe":
+            "ROE means Return on Equity.\n\n" +
+            "Formula: Net Profit / Average Shareholders' Equity × 100.\n\n" +
+            "ROE measures how efficiently a company generates profit using shareholder capital.",
+
+        "what is an etf":
+            "ETF stands for Exchange-Traded Fund. It is an investment fund traded on a stock exchange, often designed to track an index such as NIFTY 50."
+    };
+
+    // Check the separate educational question library first
+    if (typeof INVESTOR_ANSWERS !== "undefined" &&
+        Object.prototype.hasOwnProperty.call(INVESTOR_ANSWERS, q)) {
+        return {
+            message: INVESTOR_ANSWERS[q] +
+                "\n\nEducational information only, not investment advice."
+        };
+    }
+
+    if (Object.prototype.hasOwnProperty.call(answers, q)) {
+        return {
+            message: answers[q] +
+                "\n\nEducational information only, not investment advice."
+        };
+    }
+
+    return null;
+}
+
+
+function chatbotReply(question){
+
+ const investorAnswer = investorQuestionReply(question);
+ if (investorAnswer) return investorAnswer;
+ const sourced=roshniSourceReply(question);if(sourced)return sourced;
+ const q=question.toLowerCase();
+ const symbol=sel.value, c=COMPANIES[symbol], f=c.f;
+ const screener='https://www.screener.in/company/'+encodeURIComponent(symbol)+'/';
+ const label='\n\nNOTE: All numerical company metrics shown inside this website are simulated educational demo values, NOT current stock-market data.';
+ if(/screener|live|latest|real.time|current data|quarterly|balance sheet|cash flow|financial statement/.test(q)){
+  return {message:'For '+c.name+' ('+symbol+'), I cannot automatically retrieve or reproduce live Screener.in data in this offline website. Open the source below to view its available financial ratios, quarterly results, profit & loss, balance sheet and cash flows. Verify the symbol, reporting period and permissions. If you upload a dated Excel dataset later, I can be upgraded to explain those imported figures.',link:screener};
+ }
+ if(/social|youtube|influencer|rumou?r|tips|misinformation/.test(q))return {message:'Do not make investment decisions based only on social-media tips. Check the original financial reports, the date, the source, conflicts of interest and whether a claim is supported by evidence. Compare multiple trustworthy sources.'};
+ if(/what is|explain|meaning|define/.test(q)){
+  if(/roe/.test(q))return {message:'ROE (Return on Equity) = Net Profit ÷ Average Shareholders’ Equity × 100. It indicates how efficiently a company generates profit from shareholder capital. Compare companies within the same industry.'};
+  if(/roce/.test(q))return {message:'ROCE (Return on Capital Employed) = EBIT ÷ Capital Employed × 100. It helps evaluate how efficiently a company uses long-term capital.'};
+  if(/p\/?e|pe ratio/.test(q))return {message:'P/E (Price-to-Earnings) ratio = Share Price divided by Earnings Per Share. A high P/E may reflect growth expectations, but it does not automatically mean a stock is good or bad.'};
+  if(/eps/.test(q))return {message:'EPS (Earnings Per Share) = Profit attributable to ordinary shareholders ÷ Weighted average shares outstanding. It represents earnings per share.'};
+  if(/debt/.test(q))return {message:'Debt-to-equity ratio compares borrowings with shareholder equity. Interpretation varies by industry; banks require different financial analysis from non-financial companies.'};
+if(/diversif/.test(q))return {message:'Diversification means spreading investments across different companies, industries, or asset classes instead of putting all your money into one investment. It helps reduce concentration risk, but it cannot eliminate all investment risks. For example, an investor may diversify across shares, bonds, and other suitable investments.'};
+  if(/\brsi\b/.test(q))return {message:'RSI (Relative Strength Index) is a momentum indicator, usually from 0 to 100. Levels above 70 or below 30 are commonly described as overbought or oversold, not guaranteed signals.'};
+  if(/risk|volatility/.test(q))return {message:'Volatility measures variation in returns. Maximum drawdown measures the largest peak-to-trough decline. Diversification and investment horizon are important parts of risk management.'};
+ }
+ if(/risk|volatility|drawdown|beta/.test(q))return {message:c.name+' can face market, sector, business and liquidity risks. Explore the Risk & Return tab for SIMULATED volatility, beta and drawdown examples. Historical performance does not guarantee future returns.'};
+ if(/ratio|fundamental|financial|profit|revenue|roe|roce|eps|debt|margin|pe|valuation/.test(q))return {message:'Illustrative metrics for '+c.name+' ('+symbol+'):\nP/E: '+f.pe+'\nP/B: '+f.pb+'\nROE: '+f.roe+'%\nROCE: '+f.roce+'%\nDebt/Equity: '+f.debt.toFixed(2)+'\nEPS: ₹'+f.eps+'\nRevenue growth: '+f.rev+'%\nProfit growth: '+f.profit+'%'+label};
+ if(/technical|moving average|chart|trend/.test(q))return {message:'Technical analysis uses historical price/volume trends, moving averages and momentum indicators. Select the Technical tab to explore the simulated price chart for '+c.name+'.'};
+ if(/buy|sell|invest|recommend/.test(q))return {message:'I cannot recommend buying or selling '+c.name+'. For research, review business performance, valuation, debt, risk and the date and reliability of financial data. Learn the concepts in the Financial Literacy tab.'};
+ return {message:'I can explain financial concepts, show simulated ratios for '+c.name+', discuss risks, or open its Screener.in page. Try: “Explain ROE”, “Show company ratios”, or “Show Screener.in data”.'};
+}
+function askChat(question){const text=question.trim();if(!text)return;chatMessage(text,'user');const result=chatbotReply(text);chatMessage(result.message,'bot',result.link);}
+document.getElementById('chatform').addEventListener('submit',e=>{e.preventDefault();const input=document.getElementById('chatinput');askChat(input.value);input.value='';input.focus();});
+document.querySelectorAll('[data-question]').forEach(b=>b.addEventListener('click',()=>askChat(b.dataset.question)));
+chatMessage('Welcome! Select one of the 50 NIFTY 50 companies, then ask me about ratios, financial literacy, risks or Screener.in. I am an offline educational demo assistant, not a live AI model.','bot');
+
+
+// Separate floating trial chat; existing Financial Chatbot tab remains untouched.
+const floatChat=document.getElementById('floatChat');
+const floatBtn=document.getElementById('floatChatBtn');
+function toggleFloat(open){floatChat.classList.toggle('open',open);floatBtn.setAttribute('aria-expanded',String(open));if(open)document.getElementById('floatInput').focus();}
+floatBtn.addEventListener('click',()=>toggleFloat(!floatChat.classList.contains('open')));
+document.getElementById('floatClose').addEventListener('click',()=>toggleFloat(false));
+function floatMessage(message,who,link){const log=document.getElementById('floatMessages');const b=document.createElement('div');b.className='bubble '+who;b.textContent=message;if(link){const a=document.createElement('a');a.className='chatlink';a.href=link;a.target='_blank';a.rel='noopener noreferrer';a.textContent='Open reference website ↗';b.appendChild(a);}log.appendChild(b);log.scrollTop=log.scrollHeight;}
+
+
+async function floatAsk(q) {
+    q = q.trim();
+    if (!q) return;
+
+    floatMessage(q, 'user');
+
+    // Find a company mentioned in the question.
+    // COMPANY_NAMES is the existing 50-company list.
+    const normalized = q.toLowerCase()
+        .replace(/&/g, " and ")
+        .replace(/[^a-z0-9]+/g, " ")
+        .trim();
+
+    const normalize = s => s.toLowerCase()
+        .replace(/&/g, " and ")
+        .replace(/[^a-z0-9]+/g, " ")
+        .trim();
+
+    const matches = Object.entries(COMPANY_NAMES)
+        .filter(([symbol, company]) => {
+            return [symbol, company.name].some(value => {
+                const term = normalize(value);
+                return term && (
+                    (" " + normalized + " ")
+                    .includes(" " + term + " ")
+                );
+            });
+        })
+        .sort((a, b) => b[1].name.length - a[1].name.length);
+
+    const companySymbol = matches.length
+        ? matches[0][0]
+        : null;
+
+    const asksFinancialData =
+        /price|share|stock|p\/e|pe ratio|roe|market cap|financial|ratio|valuation|latest|current|information|details/i.test(q);
+
+    if (companySymbol && asksFinancialData) {
+        try {
+            const response = await fetch(
+                '/api/company/' + encodeURIComponent(companySymbol)
+            );
+
+            if (!response.ok) {
+                throw new Error("Company data unavailable");
+            }
+
+            const data = await response.json();
+
+            const formatNumber = value =>
+                typeof value === "number"
+                    ? value.toLocaleString("en-IN", {
+                        maximumFractionDigits: 2
+                    })
+                    : "N/A";
+
+            const answer =
+                data.company + " Financial Information\n\n" +
+                "Share Price: " +
+                (data.price != null
+                    ? "₹" + formatNumber(data.price)
+                    : "N/A") + "\n" +
+                "P/E Ratio: " + formatNumber(data.pe_ratio) + "\n" +
+                "ROE: " +
+                (data.roe_percent != null
+                    ? formatNumber(data.roe_percent) + "%"
+                    : "N/A") + "\n" +
+                "Market Cap: " +
+                (data.market_cap != null
+                    ? "₹" + formatNumber(data.market_cap)
+                    : "N/A") + "\n\n" +
+                "Source: Yahoo Finance\n" +
+                "Retrieved: " + data.retrieved_at + "\n" +
+                "Note: Data may be delayed or unavailable.";
+
+            floatMessage(answer, 'bot');
+
+        } catch (error) {
+            floatMessage(
+                "Sorry, I could not retrieve financial data for " +
+                COMPANY_NAMES[companySymbol].name +
+                ". Please try again later.",
+                'bot'
+            );
+        }
+
+        return;
+    }
+
+    // Preserve the existing educational chatbot answers.
+    const result = chatbotReply(q);
+    floatMessage(result.message, 'bot', result.link);
+}
+
+document.getElementById('floatForm').addEventListener('submit',e=>{e.preventDefault();const input=document.getElementById('floatInput');floatAsk(input.value);input.value='';input.focus();});
+document.querySelectorAll('[data-float-question]').forEach(b=>b.addEventListener('click',()=>floatAsk(b.dataset.floatQuestion)));
+floatMessage('Hi, I am Roshni! How can I help you? Try asking: What is inflation? What is the repo rate? Where can I find Indian GDP data? Or ask about company ratios. I provide educational answers and links to trusted sources; I do not fetch live data.','bot');
+</script>
+
+</body>
+</html>
